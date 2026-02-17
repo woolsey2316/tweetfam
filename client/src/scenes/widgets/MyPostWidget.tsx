@@ -17,22 +17,25 @@ import {
   IconButton,
   useMediaQuery,
 } from "@mui/material";
-import FlexBetween from "components/FlexBetween";
+import FlexBetween from "@components/FlexBetween";
 import Dropzone from "react-dropzone";
-import UserImage from "components/UserImage";
-import WidgetWrapper from "components/WidgetWrapper";
+import UserImage from "@components/UserImage";
+import WidgetWrapper from "@components/WidgetWrapper";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setPosts } from "state";
-
-const MyPostWidget = ({ picturePath }) => {
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "@hooks/useAppSelector";
+import { setPosts } from "@state/postsSlice";
+interface Props {
+  picturePath: string;
+}
+const MyPostWidget = ({ picturePath }: Props) => {
   const dispatch = useDispatch();
   const [isImage, setIsImage] = useState(false);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [post, setPost] = useState("");
   const { palette } = useTheme();
-  const { _id } = useSelector((state) => state.user);
-  const token = useSelector((state) => state.token);
+  const { _id } = useAppSelector((state) => state.user);
+  const token = useAppSelector((state) => state.auth.token);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
@@ -52,7 +55,7 @@ const MyPostWidget = ({ picturePath }) => {
       body: formData,
     });
     const posts = await response.json();
-    dispatch(setPosts({ posts }));
+    dispatch(setPosts(posts));
     setImage(null);
     setPost("");
   };
@@ -81,7 +84,11 @@ const MyPostWidget = ({ picturePath }) => {
           p="1rem"
         >
           <Dropzone
-            acceptedFiles=".jpg,.jpeg,.png"
+            accept={{
+              'image/jpeg': ['.jpeg', '.jpg'],
+              'image/png': ['.png'],
+              'application/pdf': ['.pdf']
+            }}
             multiple={false}
             onDrop={(acceptedFiles) => setImage(acceptedFiles[0])}
           >

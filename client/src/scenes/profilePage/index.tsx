@@ -1,21 +1,22 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@hooks/useAppSelector";
 import { useParams } from "react-router-dom";
-import Navbar from "scenes/navbar";
-import FriendListWidget from "scenes/widgets/FriendListWidget";
-import MyPostWidget from "scenes/widgets/MyPostWidget";
-import PostsWidget from "scenes/widgets/PostsWidget";
-import UserWidget from "scenes/widgets/UserWidget";
+import Navbar from "@scenes/navbar";
+import FriendListWidget from "@scenes/widgets/FriendListWidget";
+import MyPostWidget from "@scenes/widgets/MyPostWidget";
+import PostsWidget from "@scenes/widgets/PostsWidget";
+import UserWidget from "@scenes/widgets/UserWidget";
+import { User } from "../../types/user";
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const { userId } = useParams();
-  const token = useSelector((state) => state.token);
+  const token = useAppSelector((state) => state.auth.token);
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
 
   const getUser = async () => {
-    const response = await fetch(`http://localhost:5000/users/${userId}`, {
+    const response = await fetch(`${process.env.API_ORIGIN}/users/${userId}`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });

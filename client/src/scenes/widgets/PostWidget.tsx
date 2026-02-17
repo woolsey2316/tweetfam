@@ -5,12 +5,25 @@ import {
   ShareOutlined,
 } from "@mui/icons-material";
 import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
-import FlexBetween from "components/FlexBetween";
-import Friend from "components/Friend";
-import WidgetWrapper from "components/WidgetWrapper";
+import FlexBetween from "@components/FlexBetween";
+import Friend from "@components/Friend";
+import WidgetWrapper from "@components/WidgetWrapper";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setPost } from "state";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "@hooks/useAppSelector";
+import { setPost } from "@state/postsSlice";
+
+interface Props {
+  postId: string;
+  postUserId: string;
+  name: string;
+  description: string;
+  location: string;
+  picturePath: string;
+  userPicturePath: string;
+  likes: Record<string, boolean>;
+  comments: string[];
+}
 
 const PostWidget = ({
   postId,
@@ -22,11 +35,11 @@ const PostWidget = ({
   userPicturePath,
   likes,
   comments,
-}) => {
+}: Props) => {
   const [isComments, setIsComments] = useState(false);
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.token);
-  const loggedInUserId = useSelector((state) => state.user._id);
+  const token = useAppSelector((state) => state.auth.token);
+  const loggedInUserId = useAppSelector((state) => state.user._id);
   const isLiked = Boolean(likes[loggedInUserId]);
   const likeCount = Object.keys(likes).length;
 
@@ -35,7 +48,7 @@ const PostWidget = ({
   const primary = palette.primary.main;
 
   const patchLike = async () => {
-    const response = await fetch(`http://localhost:5000/posts/${postId}/like`, {
+    const response = await fetch(`${process.env.API_ORIGIN}/posts/${postId}/like`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -44,7 +57,7 @@ const PostWidget = ({
       body: JSON.stringify({ userId: loggedInUserId }),
     });
     const updatedPost = await response.json();
-    dispatch(setPost({ post: updatedPost }));
+    dispatch(setPost(updatedPost));
   };
 
   return (
@@ -94,7 +107,7 @@ const PostWidget = ({
       </FlexBetween>
       {isComments && (
         <Box mt="0.5rem">
-          {comments.map((comment, i) => (
+          {comments.map((comment: string, i: number) => (
             <Box key={`${name}-${i}`}>
               <Divider />
               <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
