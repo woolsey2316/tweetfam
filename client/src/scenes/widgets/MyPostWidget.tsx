@@ -26,7 +26,7 @@ import { useDispatch } from "react-redux";
 import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setPosts } from "@state/postsSlice.js";
 interface Props {
-  picturePath: string;
+  picturePath?: string;
 }
 const MyPostWidget = ({ picturePath }: Props) => {
   const dispatch = useDispatch();
@@ -49,7 +49,7 @@ const MyPostWidget = ({ picturePath }: Props) => {
       formData.append("picturePath", image.name);
     }
 
-    const response = await fetch(`http://localhost:5000/posts`, {
+    const response = await fetch(`${import.meta.env.VITE_API_ORIGIN}/posts`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,

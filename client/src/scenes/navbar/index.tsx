@@ -48,20 +48,17 @@ const Navbar = () => {
       sx={{ backgroundColor: neutralLight }}
     >
       <FlexBetween gap="1.75rem">
-        <Typography
-          fontWeight="bold"
-          fontSize="clamp(1rem, 2rem, 2.25rem)"
-          color="primary"
-          onClick={() => navigate("/home")}
-          sx={{
-            "&:hover": {
-              color: primaryLight,
-              cursor: "pointer",
-            },
-          }}
-        >
-          Sociopedia
-        </Typography>
+
+        <Box sx={{ cursor: "pointer" }} onClick={() => navigate("/home")} display="flex" justifyContent="center" alignItems="center">
+          <Typography fontWeight="bold" fontSize="32px" color="text.primary">
+            Tweet
+          </Typography>
+
+          <Typography fontWeight="bold" fontSize="32px" color="primary">
+            |Fam
+          </Typography>
+        </Box>
+
         {isNonMobileScreens && (
           <FlexBetween
             sx={{ backgroundColor: neutralLight }}

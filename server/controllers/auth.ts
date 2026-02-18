@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-
+import { HttpException } from "../exceptions/HttpException.js";
 /* Register User */
 export const register = async (req, res) => {
   try {
@@ -10,11 +10,17 @@ export const register = async (req, res) => {
       lastName,
       email,
       password,
-      picturePath, 
+      picturePath,
       friends,
-      location, 
+      location,
       occupation
     } = req.body
+    const findUser: User = await User.findOne({ email: email });
+    if (findUser)
+      throw new HttpException(
+        409,
+        `The email ${email} already exists`,
+      );
     const salt = await bcrypt.genSalt()
     const passwordHash = await bcrypt.hash(password, salt)
 
@@ -33,23 +39,28 @@ export const register = async (req, res) => {
     const savedUser = await newUser.save();
     res.status(201).json(savedUser)
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    if (err instanceof HttpException) {
+      res.status(err.status).json({ error: err.message });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+
   }
 }
 
 /* logging in */
-export const login = async ( req, res) => {
-  try { 
+export const login = async (req, res) => {
+  try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email })
-    if (!user)  return res.status(400).json({ msg: "User does not exist. "})
+    if (!user) return res.status(400).json({ msg: "User does not exist. " })
 
     const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. "});
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. " });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
     delete user.password;
-    res.status(200).json({ token, user})
+    res.status(200).json({ token, user })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

@@ -67,7 +67,7 @@ const Form = () => {
       }
     });
     const savedUserResponse = await fetch(
-      `${import.meta.env.API_ORIGIN}/auth/register`,
+      `${import.meta.env.VITE_API_ORIGIN}/auth/register`,
       {
         method: "POST",
         body: formData,
@@ -85,7 +85,7 @@ const Form = () => {
     resetForm: () => void
   ) => {
     const loggedInResponse = await fetch(
-      `${import.meta.env.API_ORIGIN}/auth/login`,
+      `${import.meta.env.VITE_API_ORIGIN}/auth/login`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

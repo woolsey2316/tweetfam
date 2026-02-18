@@ -1,7 +1,7 @@
 import { Box } from "@mui/material"
 
 interface UserImageProps {
-  image: string;
+  image?: string;
   size?: string;
 }
 const UserImage = ({ image, size = "60px" }: UserImageProps) => {
@@ -12,7 +12,7 @@ const UserImage = ({ image, size = "60px" }: UserImageProps) => {
         width={size}
         height={size}
         alt="user"
-        src={`${import.meta.env.APP_ORIGIN}/assets/${image}`}
+        src={`${import.meta.env.VITE_APP_ORIGIN}/assets/${image}`}
       />
     </Box>
   )

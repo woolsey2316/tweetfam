@@ -4,6 +4,7 @@ interface ImportMeta {
 
 interface ImportMetaEnv {
   readonly VITE_APP_API_URL: string;
-  readonly API_ORIGIN: string;
+  readonly VITE_API_ORIGIN: string;
+  readonly VITE_APP_ORIGIN: string;
   // add other environment variables here with their types
 }

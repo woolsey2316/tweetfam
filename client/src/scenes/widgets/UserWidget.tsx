@@ -8,17 +8,15 @@ import { Box, Typography, Divider, useTheme } from "@mui/material";
 import UserImage from "@components/UserImage.js";
 import FlexBetween from "@components/FlexBetween.js";
 import WidgetWrapper from "@components/WidgetWrapper.js";
-import { useAppSelector } from "@hooks/useAppSelector.js";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "../../types/user.js";
+import { useQuery } from '@tanstack/react-query';
+import { useAppSelector } from '@hooks/useAppSelector.js';
 interface Props {
   userId?: string;
-  picturePath: string;
+  picturePath?: string;
 }
 
 const UserWidget = ({ userId, picturePath }: Props) => {
-  const [user, setUser] = useState<User | null>(null);
   const { palette } = useTheme();
   const navigate = useNavigate();
   const token = useAppSelector((state) => state.auth.token);
@@ -26,18 +24,18 @@ const UserWidget = ({ userId, picturePath }: Props) => {
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
 
-  const getUser = async () => {
-    const response = await fetch(`${process.env.API_ORIGIN}/users/${userId}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    setUser(data);
-  };
-
-  useEffect(() => {
-    getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { isPending, error, data: user } = useQuery({
+    queryKey: ['users', userId],
+    queryFn: () =>
+      fetch(`${import.meta.env.VITE_API_ORIGIN}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token
+        },
+      }).then((res) =>
+        res.json()
+      ),
+    enabled: !!userId,
+  });
 
   if (!user) {
     return null;

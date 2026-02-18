@@ -29,7 +29,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }: Props) => {
 
   const patchFriend = async () => {
     const response = await fetch(
-      `${process.env.API_ORIGIN}/users/${_id}/${friendId}`,
+      `${process.env.VITE_API_ORIGIN}/users/${_id}/${friendId}`,
       {
         method: "PATCH",
         headers: {

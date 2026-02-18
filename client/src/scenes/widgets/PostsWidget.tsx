@@ -13,7 +13,7 @@ const PostsWidget = ({ userId, isProfile = false }: Props) => {
   const token = useAppSelector((state) => state.auth.token);
 
   const getPosts = async () => {
-    const response = await fetch(`${process.env.API_ORIGIN}/posts`, {
+    const response = await fetch(`${import.meta.env.VITE_API_ORIGIN}/posts`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -23,7 +23,7 @@ const PostsWidget = ({ userId, isProfile = false }: Props) => {
 
   const getUserPosts = async () => {
     const response = await fetch(
-      `${process.env.API_ORIGIN}/posts/${userId}/posts`,
+      `${process.env.VITE_API_ORIGIN}/posts/${userId}/posts`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
