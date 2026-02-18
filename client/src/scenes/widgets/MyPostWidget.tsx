@@ -17,14 +17,14 @@ import {
   IconButton,
   useMediaQuery,
 } from "@mui/material";
-import FlexBetween from "@components/FlexBetween";
+import FlexBetween from "@components/FlexBetween.js";
 import Dropzone from "react-dropzone";
-import UserImage from "@components/UserImage";
-import WidgetWrapper from "@components/WidgetWrapper";
+import UserImage from "@components/UserImage.js";
+import WidgetWrapper from "@components/WidgetWrapper.js";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
-import { setPosts } from "@state/postsSlice";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import { setPosts } from "@state/postsSlice.js";
 interface Props {
   picturePath: string;
 }

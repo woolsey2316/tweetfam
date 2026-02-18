@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { UIState } from '../types/ui';
+import type { UIState } from '../types/ui.js';
 
 const initialState = {
   mode: 'light',

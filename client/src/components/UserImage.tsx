@@ -12,7 +12,7 @@ const UserImage = ({ image, size = "60px" }: UserImageProps) => {
         width={size}
         height={size}
         alt="user"
-        src={`${process.env.APP_ORIGIN}/assets/${image}`}
+        src={`${import.meta.env.APP_ORIGIN}/assets/${image}`}
       />
     </Box>
   )

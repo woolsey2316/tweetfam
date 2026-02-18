@@ -5,13 +5,13 @@ import {
   WorkOutlineOutlined,
 } from "@mui/icons-material";
 import { Box, Typography, Divider, useTheme } from "@mui/material";
-import UserImage from "@components/UserImage";
-import FlexBetween from "@components/FlexBetween";
-import WidgetWrapper from "@components/WidgetWrapper";
-import { useAppSelector } from "@hooks/useAppSelector";
+import UserImage from "@components/UserImage.js";
+import FlexBetween from "@components/FlexBetween.js";
+import WidgetWrapper from "@components/WidgetWrapper.js";
+import { useAppSelector } from "@hooks/useAppSelector.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "../../types/user";
+import { User } from "../../types/user.js";
 interface Props {
   userId?: string;
   picturePath: string;

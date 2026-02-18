@@ -21,11 +21,11 @@ import {
   Close,
 } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
-import { setLogout } from "@state/auth";
-import { toggleTheme } from "@state/uiSlice";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import { setLogout } from "@state/auth.js";
+import { toggleTheme } from "@state/uiSlice.js";
 import { useNavigate } from "react-router-dom";
-import FlexBetween from "@components/FlexBetween";
+import FlexBetween from "@components/FlexBetween.js";
 
 const Navbar = () => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
@@ -39,7 +39,6 @@ const Navbar = () => {
   const dark = theme.palette.neutral.dark;
   const background = theme.palette.background.default;
   const primaryLight = theme.palette.primary.light;
-  const alt = theme.palette.background.alt;
 
   const fullName = `${user.firstName} ${user.lastName}`;
 
@@ -91,7 +90,7 @@ const Navbar = () => {
           <Message sx={{ fontSize: "25px" }} />
           <Notifications sx={{ fontSize: "25px" }} />
           <Help sx={{ fontSize: "25px" }} />
-          <FormControl variant="standard" value={fullName}>
+          <FormControl variant="standard">
             <Select
               value={fullName}
               sx={{
@@ -166,7 +165,7 @@ const Navbar = () => {
             <Message sx={{ fontSize: "25px" }} />
             <Notifications sx={{ fontSize: "25px" }} />
             <Help sx={{ fontSize: "25px" }} />
-            <FormControl variant="standard" value={fullName}>
+            <FormControl variant="standard">
               <Select
                 value={fullName}
                 sx={{

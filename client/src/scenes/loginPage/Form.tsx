@@ -8,14 +8,14 @@ import {
   useTheme,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { Formik, FormikHelpers, FormikTouched, FormikErrors } from "formik";
+import { useFormik, FormikTouched, FormikErrors } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setLogin } from "@state/auth";
+import { setLogin } from "@state/auth.js";
 import Dropzone from "react-dropzone";
-import FlexBetween from "@components/FlexBetween";
-import { RegisterFormValues, LoginFormValues } from "../../types/formValues";
+import FlexBetween from "@components/FlexBetween.js";
+import { RegisterFormValues, LoginFormValues } from "../../types/formValues.js";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -26,12 +26,10 @@ const registerSchema = yup.object().shape({
   occupation: yup.string().required("required"),
   picture: yup.string().required("required"),
 });
-
 const loginSchema = yup.object().shape({
   email: yup.string().email("invalid email").required("required"),
   password: yup.string().required("required"),
 });
-
 const initialValuesRegister = {
   firstName: "",
   lastName: "",
@@ -41,14 +39,13 @@ const initialValuesRegister = {
   occupation: "",
   picture: "",
 };
-
 const initialValuesLogin = {
   email: "",
   password: "",
 };
 
 const Form = () => {
-  const [pageType, setPageType] = useState("login");
+  const [pageType, setPageType] = useState<"login" | "register">("login");
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,8 +53,10 @@ const Form = () => {
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
 
-  const register = async (values: RegisterFormValues, onSubmitProps: FormikHelpers<RegisterFormValues>) => {
-    // this allows us to send form info with image
+  const register = async (
+    values: RegisterFormValues,
+    resetForm: () => void
+  ) => {
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       if (key === "picture" && value instanceof File) {
@@ -67,31 +66,34 @@ const Form = () => {
         formData.append(key, value as string);
       }
     });
-
     const savedUserResponse = await fetch(
-      `${process.env.API_ORIGIN}/auth/register`,
+      `${import.meta.env.API_ORIGIN}/auth/register`,
       {
         method: "POST",
         body: formData,
       }
     );
     const savedUser = await savedUserResponse.json();
-    onSubmitProps.resetForm();
-
+    resetForm();
     if (savedUser) {
       setPageType("login");
     }
   };
 
-  const login = async (values: LoginFormValues, onSubmitProps: FormikHelpers<LoginFormValues>) => {
+  const login = async (
+    values: LoginFormValues,
+    resetForm: () => void
+  ) => {
     const loggedInResponse = await fetch(
-      `${process.env}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+      `${import.meta.env.API_ORIGIN}/auth/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }
+    );
     const loggedIn = await loggedInResponse.json();
-    onSubmitProps.resetForm();
+    resetForm();
     if (loggedIn) {
       dispatch(
         setLogin({
@@ -103,189 +105,226 @@ const Form = () => {
     }
   };
 
-  const handleFormSubmit = async (values: RegisterFormValues | LoginFormValues, onSubmitProps: FormikHelpers<RegisterFormValues | LoginFormValues>) => {
-    if (isLogin) await login(values as LoginFormValues, onSubmitProps as FormikHelpers<LoginFormValues>);
-    if (isRegister) await register(values as RegisterFormValues, onSubmitProps as FormikHelpers<RegisterFormValues>);
-  };
+  const formik = useFormik({
+    initialValues: isLogin ? initialValuesLogin : initialValuesRegister,
+    validationSchema: isLogin ? loginSchema : registerSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, { resetForm }) => {
+      if (isLogin) {
+        await login(values as LoginFormValues, resetForm);
+      }
+      if (isRegister) {
+        await register(values as RegisterFormValues, resetForm);
+      }
+    },
+  });
 
+  const picture =
+    isRegister && (formik.values as RegisterFormValues).picture;
+  const touchedField = formik.touched as FormikTouched<RegisterFormValues>;
+  const errorField = formik.errors as FormikErrors<RegisterFormValues>;
   return (
-    <Formik
-      onSubmit={handleFormSubmit}
-      initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
-      validationSchema={isLogin ? loginSchema : registerSchema}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleBlur,
-        handleChange,
-        handleSubmit,
-        setFieldValue,
-        resetForm,
-      }) => {
-        const picture = (values as RegisterFormValues).picture;
-        const touchedFields = touched as FormikTouched<RegisterFormValues>;
-        const errorFields = errors as FormikErrors<RegisterFormValues>;
-        return (
-          <form onSubmit={handleSubmit}>
-            <Box
-              display="grid"
-              gap="30px"
-              gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+    <form onSubmit={formik.handleSubmit}>
+      <Box
+        display="grid"
+        gap="30px"
+        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+        sx={{
+          "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+        }}
+      >
+        {isRegister && (
+          <>
+            <TextField
+              label="First Name"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={(formik.values as RegisterFormValues).firstName}
+              name="firstName"
+              error={
+                Boolean(touchedField.firstName) &&
+                Boolean(errorField.firstName)
+              }
+              helperText={
+                touchedField.firstName && errorField.firstName
+              }
               sx={{
-                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                gridColumn: "span 2",
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#a0a0a0",
+                },
               }}
+            />
+            <TextField
+              label="Last Name"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={(formik.values as RegisterFormValues).lastName}
+              name="lastName"
+              error={
+                Boolean(touchedField.lastName) &&
+                Boolean(errorField.lastName)
+              }
+              helperText={
+                touchedField.lastName && errorField.lastName
+              }
+              sx={{
+                gridColumn: "span 2",
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#a0a0a0",
+                },
+              }}
+            />
+            <TextField
+              label="Location"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={(formik.values as RegisterFormValues).location}
+              name="location"
+              error={
+                Boolean(touchedField.location) &&
+                Boolean(errorField.location)
+              }
+              helperText={
+                touchedField.location && errorField.location
+              }
+              sx={{
+                gridColumn: "span 4",
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#a0a0a0",
+                },
+              }}
+            />
+            <TextField
+              label="Occupation"
+              onBlur={formik.handleBlur}
+              onChange={formik.handleChange}
+              value={(formik.values as RegisterFormValues).occupation}
+              name="occupation"
+              error={
+                Boolean(touchedField.occupation) &&
+                Boolean(errorField.occupation)
+              }
+              helperText={
+                touchedField.occupation && errorField.occupation
+              }
+              sx={{
+                gridColumn: "span 4",
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#a0a0a0",
+                },
+              }}
+            />
+            <Box
+              gridColumn="span 4"
+              border={`1px solid ${palette.neutral.medium}`}
+              borderRadius="5px"
+              p="1rem"
             >
-              {isRegister && (
-                <>
-                  <TextField
-                    label="First Name"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={(values as RegisterFormValues).firstName}
-                    name="firstName"
-                    error={
-                      Boolean(touchedFields.firstName) && Boolean(errorFields.firstName)
-                    }
-                    helperText={touchedFields.firstName && errorFields.firstName}
-                    sx={{ gridColumn: "span 2" }}
-                  />
-                  <TextField
-                    label="Last Name"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={(values as RegisterFormValues).lastName}
-                    name="lastName"
-                    error={Boolean(touchedFields.lastName) && Boolean(errorFields.lastName)}
-                    helperText={touchedFields.lastName && errorFields.lastName}
-                    sx={{ gridColumn: "span 2" }}
-                  />
-                  <TextField
-                    label="Location"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={(values as RegisterFormValues).location}
-                    name="location"
-                    error={Boolean(touchedFields.location) && Boolean(errorFields.location)}
-                    helperText={touchedFields.location && errorFields.location}
-                    sx={{ gridColumn: "span 4" }}
-                  />
-                  <TextField
-                    label="Occupation"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={(values as RegisterFormValues).occupation}
-                    name="occupation"
-                    error={
-                      Boolean(touchedFields.occupation) && Boolean(errorFields.occupation)
-                    }
-                    helperText={touchedFields.occupation && errorFields.occupation}
-                    sx={{ gridColumn: "span 4" }}
-                  />
+              <Dropzone
+                accept={{
+                  "image/jpeg": [".jpeg", ".jpg"],
+                  "image/png": [".png"],
+                  "application/pdf": [".pdf"],
+                }}
+                multiple={false}
+                onDrop={(acceptedFiles: File[]) =>
+                  formik.setFieldValue("picture", acceptedFiles[0])
+                }
+              >
+                {({ getRootProps, getInputProps }) => (
                   <Box
-                    gridColumn="span 4"
-                    border={`1px solid ${palette.neutral.medium}`}
-                    borderRadius="5px"
+                    {...getRootProps()}
+                    border={`2px dashed ${palette.primary.main}`}
                     p="1rem"
+                    sx={{ "&:hover": { cursor: "pointer" } }}
                   >
-                    <Dropzone
-                      accept={{
-                        'image/jpeg': ['.jpeg', '.jpg'],
-                        'image/png': ['.png'],
-                        'application/pdf': ['.pdf']
-                      }}
-                      multiple={false}
-                      onDrop={(acceptedFiles) =>
-                        setFieldValue("picture", acceptedFiles[0])
-                      }
-                    >
-                      {({ getRootProps, getInputProps }) => (
-                        <Box
-                          {...getRootProps()}
-                          border={`2px dashed ${palette.primary.main}`}
-                          p="1rem"
-                          sx={{ "&:hover": { cursor: "pointer" } }}
-                        >
-                          <input {...getInputProps()} />
-                          {!(values as RegisterFormValues).picture ? (
-                            <p>Add Picture Here</p>
-                          ) : (
-
-                            <FlexBetween>
-                              {picture instanceof File ? picture.name : picture}
-                              <EditOutlinedIcon />
-                            </FlexBetween>
-                          )}
-                        </Box>
-                      )}
-                    </Dropzone>
+                    <input {...getInputProps()} />
+                    {!(formik.values as RegisterFormValues).picture ? (
+                      <p>Add Picture Here</p>
+                    ) : (
+                      <FlexBetween>
+                        {picture instanceof File ? picture.name : picture}
+                        <EditOutlinedIcon />
+                      </FlexBetween>
+                    )}
                   </Box>
-                </>
-              )}
-
-              <TextField
-                label="Email"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.email}
-                name="email"
-                error={Boolean(touched.email) && Boolean(errors.email)}
-                helperText={touched.email && errors.email}
-                sx={{ gridColumn: "span 4" }}
-              />
-              <TextField
-                label="Password"
-                type="password"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.password}
-                name="password"
-                error={Boolean(touched.password) && Boolean(errors.password)}
-                helperText={touched.password && errors.password}
-                sx={{ gridColumn: "span 4" }}
-              />
+                )}
+              </Dropzone>
             </Box>
+          </>
+        )}
 
-            {/* BUTTONS */}
-            <Box>
-              <Button
-                fullWidth
-                type="submit"
-                sx={{
-                  m: "2rem 0",
-                  p: "1rem",
-                  backgroundColor: palette.primary.main,
-                  color: palette.background.alt,
-                  "&:hover": { color: palette.primary.main },
-                }}
-              >
-                {isLogin ? "LOGIN" : "REGISTER"}
-              </Button>
-              <Typography
-                onClick={() => {
-                  setPageType(isLogin ? "register" : "login");
-                  resetForm();
-                }}
-                sx={{
-                  textDecoration: "underline",
-                  color: palette.primary.main,
-                  "&:hover": {
-                    cursor: "pointer",
-                    color: palette.primary.light,
-                  },
-                }}
-              >
-                {isLogin
-                  ? "Don't have an account? Sign Up here."
-                  : "Already have an account? Login here."}
-              </Typography>
-            </Box>
-          </form>
-        )
-      }}
-    </Formik >
+        <TextField
+          label="Email"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          value={formik.values.email}
+          name="email"
+          error={Boolean(formik.touched.email) && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
+          sx={{
+            gridColumn: "span 4",
+            "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#a0a0a0",
+            },
+          }}
+        />
+        <TextField
+          label="Password"
+          type="password"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          value={formik.values.password}
+          name="password"
+          error={
+            Boolean(formik.touched.password) && Boolean(formik.errors.password)
+          }
+          helperText={formik.touched.password && formik.errors.password}
+          sx={{
+            gridColumn: "span 4",
+            "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#a0a0a0",
+            },
+          }}
+        />
+      </Box>
+
+      {/* BUTTONS */}
+      <Box>
+        <Button
+          fullWidth
+          type="submit"
+          sx={{
+            m: "2rem 0",
+            p: "1rem",
+            backgroundColor: palette.primary.main,
+            color: palette.background.alt,
+          }}
+        >
+          {isLogin ? "LOGIN" : "REGISTER"}
+        </Button>
+        <Typography
+          onClick={() => {
+            setPageType(isLogin ? "register" : "login");
+            formik.resetForm();
+          }}
+          sx={{
+            textDecoration: "underline",
+            color: palette.primary.main,
+            "&:hover": {
+              cursor: "pointer",
+            },
+          }}
+        >
+          {isLogin
+            ? "Don't have an account? Sign Up here."
+            : "Already have an account? Login here."}
+        </Typography>
+      </Box>
+    </form>
   );
 };
 
 export default Form;
+

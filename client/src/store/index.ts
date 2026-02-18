@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import authReducer from '@state/auth'
-import postsReducer from '@state/postsSlice'
-import commentsReducer from '@state/commentsSlice'
-import usersReducer from '@state/usersSlice'
-import uiReducer from '@state/uiSlice'
-import notificationsReducer from '@state/notificationsSlice'
+import authReducer from '@state/auth.js'
+import postsReducer from '@state/postsSlice.js'
+import commentsReducer from '@state/commentsSlice.js'
+import usersReducer from '@state/usersSlice.js'
+import uiReducer from '@state/uiSlice.js'
+import notificationsReducer from '@state/notificationsSlice.js'
 
 export const store = configureStore({
   reducer: {

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
-import { setPosts } from "@state/postsSlice";
-import PostWidget from "./PostWidget";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import { setPosts } from "@state/postsSlice.js";
+import PostWidget from "./PostWidget.js";
 interface Props {
   userId?: string;
   isProfile?: boolean;

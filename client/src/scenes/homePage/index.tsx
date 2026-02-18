@@ -1,10 +1,10 @@
 import { Box, useMediaQuery } from "@mui/material"
-import { useAppSelector } from "@hooks/useAppSelector";
-import Navbar from "@scenes/navbar";
-import UserWidget from "@scenes/widgets/UserWidget";
-import MyPostWidget from "@scenes/widgets/MyPostWidget";
-import PostsWidget from "@scenes/widgets/PostsWidget";
-import FriendListWidget from "@scenes/widgets/FriendListWidget";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import Navbar from "@scenes/navbar/index.js";
+import UserWidget from "@scenes/widgets/UserWidget.js";
+import MyPostWidget from "@scenes/widgets/MyPostWidget.js";
+import PostsWidget from "@scenes/widgets/PostsWidget.js";
+import FriendListWidget from "@scenes/widgets/FriendListWidget.js";
 
 const HomePage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)")

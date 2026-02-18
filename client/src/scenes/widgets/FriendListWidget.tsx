@@ -1,10 +1,10 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import Friend from "@components/Friend";
-import WidgetWrapper from "@components/WidgetWrapper";
+import Friend from "@components/Friend.js";
+import WidgetWrapper from "@components/WidgetWrapper.js";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
-import { setFriends } from "@state/usersSlice";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import { setFriends } from "@state/usersSlice.js";
 interface Props {
   userId?: string;
 }

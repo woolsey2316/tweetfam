@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import HomePage from '@scenes/homePage'
-import LoginPage from '@scenes/loginPage';
-import ProfilePage from '@scenes/profilePage';
+import HomePage from '@scenes/homePage/index.js'
+import LoginPage from '@scenes/loginPage/index.js';
+import ProfilePage from '@scenes/profilePage/index.js';
 import { useMemo } from "react"
-import { useAppSelector } from '@hooks/useAppSelector';
+import { useAppSelector } from '@hooks/useAppSelector.js';
 import { CssBaseline, ThemeProvider } from "@mui/material"
 import { createTheme } from "@mui/material/styles"
-import { themeSettings } from "./theme"
+import { themeSettings } from "./theme.js"
 
 function App() {
   const mode = useAppSelector((state => state.ui.mode))

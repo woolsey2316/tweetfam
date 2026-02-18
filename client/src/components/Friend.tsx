@@ -1,11 +1,11 @@
 import { PersonAddOutlined, PersonRemoveOutlined } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
+import { useAppSelector } from "@hooks/useAppSelector.js";
 import { useNavigate } from "react-router-dom";
-import { setFriends } from "@state/usersSlice";
-import FlexBetween from "./FlexBetween";
-import UserImage from "./UserImage";
+import { setFriends } from "@state/usersSlice.js";
+import FlexBetween from "./FlexBetween.js";
+import UserImage from "./UserImage.js";
 interface Props {
   friendId: string;
   name: string;

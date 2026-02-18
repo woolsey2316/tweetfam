@@ -5,13 +5,13 @@ import {
   ShareOutlined,
 } from "@mui/icons-material";
 import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
-import FlexBetween from "@components/FlexBetween";
-import Friend from "@components/Friend";
-import WidgetWrapper from "@components/WidgetWrapper";
+import FlexBetween from "@components/FlexBetween.js";
+import Friend from "@components/Friend.js";
+import WidgetWrapper from "@components/WidgetWrapper.js";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useAppSelector } from "@hooks/useAppSelector";
-import { setPost } from "@state/postsSlice";
+import { useAppSelector } from "@hooks/useAppSelector.js";
+import { setPost } from "@state/postsSlice.js";
 
 interface Props {
   postId: string;
@@ -48,7 +48,7 @@ const PostWidget = ({
   const primary = palette.primary.main;
 
   const patchLike = async () => {
-    const response = await fetch(`${process.env.API_ORIGIN}/posts/${postId}/like`, {
+    const response = await fetch(`${import.meta.env.API_ORIGIN}/posts/${postId}/like`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -77,7 +77,7 @@ const PostWidget = ({
           height="auto"
           alt="post"
           style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-          src={`http://localhost:5000/assets/${picturePath}`}
+          src={`${import.meta.env.API_ORIGIN}/assets/${picturePath}`}
         />
       )}
       <FlexBetween mt="0.25rem">

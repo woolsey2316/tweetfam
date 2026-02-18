@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import type { Post } from "../types/post"
+import type { Post } from "../types/post.js"
 
 const initialState = { posts: [] } satisfies { posts: Post[] } as { posts: Post[] };
 
