@@ -58,10 +58,61 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. " });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' })
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' })
+    
+    // Store refresh token in database
+    user.refreshToken = refreshToken;
+    await user.save();
+    
     delete user.password;
-    res.status(200).json({ token, user })
+    res.status(200).json({ token: accessToken, refreshToken, user })
   } catch (err) {
     res.status(500).json({ error: err.message })
+  }
+}
+
+/* refresh token */
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    
+    if (!refreshToken) {
+      return res.status(401).json({ msg: "Refresh token required" });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    
+    // Find user with this refresh token
+    const user = await User.findOne({ _id: decoded.id, refreshToken });
+    
+    if (!user) {
+      return res.status(403).json({ msg: "Invalid refresh token" });
+    }
+
+    // Generate new access token
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    
+    res.status(200).json({ token: accessToken });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(403).json({ msg: "Refresh token expired, please login again" });
+    }
+    res.status(500).json({ error: err.message });
+  }
+}
+
+/* logout */
+export const logout = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    // Clear refresh token from database
+    await User.findByIdAndUpdate(userId, { refreshToken: null });
+    
+    res.status(200).json({ msg: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }

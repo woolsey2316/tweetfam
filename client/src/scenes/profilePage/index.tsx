@@ -1,6 +1,5 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@hooks/useAppSelector.js";
 import { useParams } from "react-router-dom";
 import Navbar from "@scenes/navbar/index.js";
 import FriendListWidget from "@scenes/widgets/FriendListWidget.js";
@@ -8,25 +7,24 @@ import MyPostWidget from "@scenes/widgets/MyPostWidget.js";
 import PostsWidget from "@scenes/widgets/PostsWidget.js";
 import UserWidget from "@scenes/widgets/UserWidget.js";
 import { User } from "../../types/user.js";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "@utils/api.js";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const { userId } = useParams();
-  const token = useAppSelector((state) => state.auth.token);
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
 
-  const getUser = async () => {
-    const response = await fetch(`${process.env.API_ORIGIN}/users/${userId}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    setUser(data);
-  };
+  const { data } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => apiGet(`/users/${userId}`),
+  });
 
   useEffect(() => {
-    getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (data) {
+      setUser(data);
+    }
+  }, [data]);
 
   if (!user) return null;
 

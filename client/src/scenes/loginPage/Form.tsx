@@ -95,6 +95,10 @@ const Form = () => {
     const loggedIn = await loggedInResponse.json();
     resetForm();
     if (loggedIn) {
+      // Store refresh token
+      if (loggedIn.refreshToken) {
+        localStorage.setItem('refreshToken', loggedIn.refreshToken);
+      }
       dispatch(
         setLogin({
           user: loggedIn.user,

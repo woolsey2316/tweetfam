@@ -25,22 +25,37 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setPosts } from "@state/postsSlice.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiPostFormData } from "@utils/api.js";
+import type { Post } from "../../types/post.js";
+
 interface Props {
   picturePath?: string;
 }
+
 const MyPostWidget = ({ picturePath }: Props) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [post, setPost] = useState("");
   const { palette } = useTheme();
   const { _id } = useAppSelector((state) => state.user);
-  const token = useAppSelector((state) => state.auth.token);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
 
-  const handlePost = async () => {
+  const postMutation = useMutation({
+    mutationFn: (formData: FormData) => apiPostFormData<Post>('/posts', formData),
+    onSuccess: (posts) => {
+      dispatch(setPosts([posts]));
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      setImage(null);
+      setPost("");
+    },
+  });
+
+  const handlePost = () => {
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
@@ -49,15 +64,7 @@ const MyPostWidget = ({ picturePath }: Props) => {
       formData.append("picturePath", image.name);
     }
 
-    const response = await fetch(`${import.meta.env.VITE_API_ORIGIN}/posts`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    const posts = await response.json();
-    dispatch(setPosts(posts));
-    setImage(null);
-    setPost("");
+    postMutation.mutate(formData);
   };
 
   return (
@@ -72,7 +79,7 @@ const MyPostWidget = ({ picturePath }: Props) => {
             width: "100%",
             backgroundColor: palette.neutral.light,
             borderRadius: "2rem",
-            padding: "1rem 2rem",
+            padding: "0.5rem 2rem",
           }}
         />
       </FlexBetween>

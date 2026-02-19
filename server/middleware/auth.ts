@@ -5,7 +5,7 @@ export const verifyToken = async (req, res, next) => {
     let token = req.header("Authorization");
 
     if (!token) {
-      return res.status(403).send("No token provided, authorization denied");
+      return res.status(403).json({ msg: "No token provided, authorization denied" });
     }
 
     if (token.startsWith("Bearer ")) {
@@ -16,6 +16,12 @@ export const verifyToken = async (req, res, next) => {
     req.user = verified;
     next();
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        msg: "Token expired", 
+        expired: true 
+      });
+    }
+    res.status(403).json({ error: err.message });
   }
 }

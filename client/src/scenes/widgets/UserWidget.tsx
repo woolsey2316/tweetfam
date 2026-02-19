@@ -10,7 +10,8 @@ import FlexBetween from "@components/FlexBetween.js";
 import WidgetWrapper from "@components/WidgetWrapper.js";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
-import { useAppSelector } from '@hooks/useAppSelector.js';
+import { apiGet } from '@utils/api.js';
+import type { User } from '../../types/user.js';
 interface Props {
   userId?: string;
   picturePath?: string;
@@ -19,21 +20,13 @@ interface Props {
 const UserWidget = ({ userId, picturePath }: Props) => {
   const { palette } = useTheme();
   const navigate = useNavigate();
-  const token = useAppSelector((state) => state.auth.token);
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
 
-  const { isPending, error, data: user } = useQuery({
-    queryKey: ['users', userId],
-    queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_ORIGIN}/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Include token
-        },
-      }).then((res) =>
-        res.json()
-      ),
+  const { data: user } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => apiGet<User>(`/user/${userId}`),
     enabled: !!userId,
   });
 

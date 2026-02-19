@@ -1,9 +1,10 @@
 import express from "express"
-import { login, register } from "../controllers/auth.js"
-import { strictLimiter } from "../middleware/rate-limiter.js"
+import { login, refreshAccessToken, logout } from "../controllers/auth.js"
 
 const router = express.Router();
 
-router.post("/login", strictLimiter, login)
-router.post("/register", strictLimiter, register)
+router.post("/login", login)
+router.post("/refresh", refreshAccessToken)
+router.post("/logout", logout)
+
 export default router;

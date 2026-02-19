@@ -6,17 +6,21 @@ import { useNavigate } from "react-router-dom";
 import { setFriends } from "@state/usersSlice.js";
 import FlexBetween from "./FlexBetween.js";
 import UserImage from "./UserImage.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiPatch } from "@utils/api.js";
+
 interface Props {
   friendId: string;
   name: string;
   subtitle: string;
   userPicturePath: string;
 }
+
 const Friend = ({ friendId, name, subtitle, userPicturePath }: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { _id } = useAppSelector((state) => state.user);
-  const token = useAppSelector((state) => state.auth.token);
   const friends = useAppSelector((state) => state.user.friends);
 
   const { palette } = useTheme();
@@ -27,19 +31,16 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }: Props) => {
 
   const isFriend = friends.find((friend) => friend._id === friendId);
 
-  const patchFriend = async () => {
-    const response = await fetch(
-      `${process.env.VITE_API_ORIGIN}/users/${_id}/${friendId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
+  const friendMutation = useMutation({
+    mutationFn: () => apiPatch(`/users/${_id}/${friendId}`),
+    onSuccess: (data) => {
+      dispatch(setFriends({ friends: data }));
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+    },
+  });
+
+  const patchFriend = () => {
+    friendMutation.mutate();
   };
 
   return (

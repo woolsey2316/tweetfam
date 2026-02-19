@@ -12,6 +12,9 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setPost } from "@state/postsSlice.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiPatch } from "@utils/api.js";
+import type { Post } from "../../types/post.js";
 
 interface Props {
   postId: string;
@@ -38,7 +41,7 @@ const PostWidget = ({
 }: Props) => {
   const [isComments, setIsComments] = useState(false);
   const dispatch = useDispatch();
-  const token = useAppSelector((state) => state.auth.token);
+  const queryClient = useQueryClient();
   const loggedInUserId = useAppSelector((state) => state.user._id);
   const isLiked = Boolean(likes[loggedInUserId]);
   const likeCount = Object.keys(likes).length;
@@ -47,17 +50,16 @@ const PostWidget = ({
   const main = palette.neutral.main;
   const primary = palette.primary.main;
 
-  const patchLike = async () => {
-    const response = await fetch(`${import.meta.env.VITE_API_ORIGIN}/posts/${postId}/like`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: loggedInUserId }),
-    });
-    const updatedPost = await response.json();
-    dispatch(setPost(updatedPost));
+  const likeMutation = useMutation({
+    mutationFn: () => apiPatch<Post>(`/posts/${postId}/like`, { userId: loggedInUserId }),
+    onSuccess: (updatedPost) => {
+      dispatch(setPost(updatedPost));
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
+  const patchLike = () => {
+    likeMutation.mutate();
   };
 
   return (

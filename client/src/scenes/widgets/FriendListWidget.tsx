@@ -5,30 +5,28 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setFriends } from "@state/usersSlice.js";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "@utils/api.js";
+
 interface Props {
   userId?: string;
 }
+
 const FriendListWidget = ({ userId }: Props) => {
   const dispatch = useDispatch();
   const { palette } = useTheme();
-  const token = useAppSelector((state) => state.auth.token);
   const friends = useAppSelector((state) => state.user.friends);
 
-  const getFriends = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_ORIGIN}/users/${userId}/friends`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
-  };
+  const { data } = useQuery({
+    queryKey: ['friends', userId],
+    queryFn: () => apiGet(`/users/${userId}/friends`),
+  });
 
   useEffect(() => {
-    getFriends();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (data) {
+      dispatch(setFriends({ friends: data }));
+    }
+  }, [data, dispatch]);
 
   return (
     <WidgetWrapper>
