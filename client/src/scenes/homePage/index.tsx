@@ -8,7 +8,7 @@ import FriendListWidget from "@scenes/widgets/FriendListWidget.js";
 
 const HomePage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)")
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state.user);
 
   return (
     <Box>

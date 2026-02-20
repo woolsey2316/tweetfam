@@ -7,7 +7,7 @@ import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setFriends } from "@state/usersSlice.js";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@utils/api.js";
-
+import type { User } from "../../types/user.js";
 interface Props {
   userId?: string;
 }
@@ -17,9 +17,9 @@ const FriendListWidget = ({ userId }: Props) => {
   const { palette } = useTheme();
   const friends = useAppSelector((state) => state.user.friends);
 
-  const { data } = useQuery({
+  const { data } = useQuery<User[]>({
     queryKey: ['friends', userId],
-    queryFn: () => apiGet(`/users/${userId}/friends`),
+    queryFn: () => apiGet(`/user/${userId}/friends`),
   });
 
   useEffect(() => {
