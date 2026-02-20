@@ -23,6 +23,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "@hooks/useAppSelector.js";
 import { setLogout } from "@state/auth.js";
+import { clearUser } from "@state/usersSlice.js";
 import { toggleTheme } from "@state/uiSlice.js";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "@components/FlexBetween.js";
@@ -108,7 +109,11 @@ const Navbar = () => {
               <MenuItem value={fullName}>
                 <Typography>{fullName}</Typography>
               </MenuItem>
-              <MenuItem onClick={() => dispatch(setLogout())}>Log Out</MenuItem>
+              <MenuItem onClick={() => {
+                dispatch(setLogout());
+                dispatch(clearUser());
+                navigate("/login");
+              }}>Log Out</MenuItem>
             </Select>
           </FormControl>
         </FlexBetween>
@@ -183,7 +188,11 @@ const Navbar = () => {
                 <MenuItem value={fullName}>
                   <Typography>{fullName}</Typography>
                 </MenuItem>
-                <MenuItem onClick={() => dispatch(setLogout())}>
+                <MenuItem onClick={() => {
+                  dispatch(setLogout());
+                  dispatch(clearUser());
+                  navigate("/login");
+                }}>
                   Log Out
                 </MenuItem>
               </Select>

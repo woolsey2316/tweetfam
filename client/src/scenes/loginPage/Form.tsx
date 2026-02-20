@@ -13,6 +13,7 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "@state/auth.js";
+import { setUser } from "@state/usersSlice.js";
 import Dropzone from "react-dropzone";
 import FlexBetween from "@components/FlexBetween.js";
 import { RegisterFormValues, LoginFormValues } from "../../types/formValues.js";
@@ -99,10 +100,19 @@ const Form = () => {
       if (loggedIn.refreshToken) {
         localStorage.setItem('refreshToken', loggedIn.refreshToken);
       }
+      if (loggedIn.token) {
+        localStorage.setItem('token', loggedIn.token);
+      }
+      // Set auth state
       dispatch(
         setLogin({
-          user: loggedIn.user,
           token: loggedIn.token,
+        })
+      );
+      // Set user state
+      dispatch(
+        setUser({
+          user: loggedIn.user,
         })
       );
       navigate("/home");

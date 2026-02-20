@@ -14,13 +14,21 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setLogin: (state, action: PayloadAction<{ user: User, token: string | null }>) => {
-      state.user = action.payload.user;
+    setLogin: (state, action: PayloadAction<{ token: string | null }>) => {
       state.token = action.payload.token;
+      state.isAuthenticated = true;
+      // Also persist token to localStorage for immediate access
+      if (action.payload.token) {
+        localStorage.setItem('token', action.payload.token);
+      }
     },
     setLogout: (state) => {
       state.user = null;
       state.token = null;
+      state.isAuthenticated = false;
+      // Clear tokens from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     },
     setLoading: (state, action: PayloadAction<{ loading: boolean }>) => {
       state.loading = action.payload.loading;

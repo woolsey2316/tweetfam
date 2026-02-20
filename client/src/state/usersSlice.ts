@@ -20,23 +20,14 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<{ user: User }>) => {
-      state._id = action.payload.user._id;
-      state.firstName = action.payload.user.firstName;
-      state.lastName = action.payload.user.lastName;
-      state.email = action.payload.user.email;
-      state.password = action.payload.user.password;
-      state.picturePath = action.payload.user.picturePath;
-      state.friends = action.payload.user.friends;
-      state.location = action.payload.user.location;
-      state.occupation = action.payload.user.occupation;
-      state.viewedProfile = action.payload.user.viewedProfile;
-      state.impressions = action.payload.user.impressions;
+      return action.payload.user;
     },
     setFriends: (state, action: PayloadAction<{ friends: User[] }>) => {
       state.friends = action.payload.friends;
-    }
+    },
+    clearUser: () => initialState,
   }
 })
 
-export const { setUser, setFriends } = usersSlice.actions
+export const { setUser, setFriends, clearUser } = usersSlice.actions
 export default usersSlice.reducer
