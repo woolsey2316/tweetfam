@@ -54,7 +54,6 @@ const Navbar = () => {
           <Typography fontWeight="bold" fontSize="32px" color="text.primary">
             Tweet
           </Typography>
-
           <Typography fontWeight="bold" fontSize="32px" color="primary">
             |Fam
           </Typography>
